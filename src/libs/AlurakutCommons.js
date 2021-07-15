@@ -1,6 +1,7 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 import NextLink from 'next/link';
+import { user } from '../../social';
 
 const BASE_URL = 'http://alurakut.vercel.app/';
 const v = '1';
@@ -166,11 +167,11 @@ function AlurakutMenuProfileSidebar({ githubUser }) {
   return (
     <div className="alurakutMenuProfileSidebar">
       <div>
-        <img src={`https://github.com/${githubUser}.png`} style={{ borderRadius: '8px' }} />
+        <img src={user.image} style={{ borderRadius: '8px' }} />
         <hr />
         <p>
-          <a className="boxLink" href={`/user/${githubUser}`}>
-            @{githubUser}
+          <a className="boxLink" href={`/user/${user.title}`}>
+            @{user.title}
           </a>
         </p>
         <hr />

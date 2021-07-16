@@ -1,7 +1,6 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
 import NextLink from 'next/link';
-import { user } from '../../social';
 
 const BASE_URL = 'http://alurakut.vercel.app/';
 const v = '1';
@@ -55,7 +54,7 @@ export function AlurakutMenu({ githubUser }) {
 }
 AlurakutMenu.Wrapper = styled.header`
   width: 100%;
-  background-color: #308BC5;
+  background-color: #979FE3;
   .alurakutMenuProfileSidebar {
     background: white;
     position: fixed;
@@ -94,7 +93,7 @@ AlurakutMenu.Wrapper = styled.header`
     }
   }
   .container {
-    background-color: #308BC5;
+    background-color: #979FE3;
     padding: 7px 16px;
     max-width: 1110px;
     margin: auto;
@@ -163,15 +162,16 @@ AlurakutMenu.Logo = styled.img`
   height: 34px;
 `;
 
+const user = "juamerico"
 function AlurakutMenuProfileSidebar({ githubUser }) {
   return (
     <div className="alurakutMenuProfileSidebar">
       <div>
-        <img src={user.image} style={{ borderRadius: '8px' }} />
+        <img src={`https://github.com/${user}.png`} style={{ borderRadius: '8px' }} />
         <hr />
         <p>
-          <a className="boxLink" href={`/user/${user.title}`}>
-            @{user.title}
+          <a className="boxLink" href={`/user/${user}`}>
+            {user}
           </a>
         </p>
         <hr />

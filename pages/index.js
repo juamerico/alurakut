@@ -3,30 +3,53 @@ import MainGrid from "../src/components/MainGrid"
 import Box from "../src/components/Box"
 import {AlurakutMenu, OrkutNostalgicIconSet, AlurakutProfileSidebarMenuDefault} from "../src/libs/AlurakutCommons.js"
 import {ProfileRelationsBoxWrapper} from '../src/components/ProfileRelations'
-import {user, friendList} from "../social.js"
 
 
+const user = "juamerico"
 function ProfileSideBar() {
   return <Box>
-    <img src={user.image}/>
+    <img src={`http://github.com/${user}.png`}/>
   
-    <hr />
+    <hr/>
 
       <p>
         <a className="boxLink">
-          @ {user.title}
+          {user}
         </a>
       </p>
-      <hr />
+      <hr/>
 
       <AlurakutProfileSidebarMenuDefault />
   </Box>  
 }
 
-const friends = friendList
-console.log(friends)
-
 export default function Home() {
+
+  const [following, setFollowing] = React.useState([])
+
+  React.useEffect(function() {
+    fetch("https://api.github.com/users/juamerico/following")
+    .then(function(data) {
+      return data.json()
+    })
+    .then(function(completeData) {
+      setFollowing(completeData)
+    })
+  })
+
+  const [followers, setFollowers] = React.useState([]);
+
+  React.useEffect(function() {
+    fetch("https://api.github.com/users/juamerico/followers")
+    .then(function(data) {
+      return data.json()
+    })
+    .then(function(completeData) {
+      setFollowers(completeData)
+    })
+  }, [])
+
+
   const [communities, setCommunities] = React.useState([{
     id: "1",
     title: "Odeio acordar cedo",
@@ -85,18 +108,32 @@ export default function Home() {
         </Box>
         </div>
 
-
-
         <div className="profileRelationsArea" style={{gridArea: "relationsArea"}}>
-          <ProfileRelationsBoxWrapper>
-            <h2 className="smallTitle">Pessoas da comunidade ({friends.length})</h2>
+          {<ProfileRelationsBoxWrapper>
+            <h2 className="smallTitle">Seguindo ({following.length})</h2>
             <ul>
-             {friends.map(friend => {
+             {following.slice(0,6).map(item => {
                 return(
                   <li>
-                    <a>
-                      <img src={friend.image}/>
-                      <span>{friend.title}</span>
+                    <a href={`https://github.com/${item.login}`}>
+                      <img src={`https://github.com/${item.login}.png`}/>
+                      <span>{item.login}</span>
+                    </a>
+                  </li>
+                )
+              })}
+            </ul>
+          </ProfileRelationsBoxWrapper>}
+
+          <ProfileRelationsBoxWrapper>
+            <h2 className="smallTitle">Seguidores ({followers.length})</h2>
+            <ul>
+              {followers.slice(0,6).map(item => {
+                return (
+                  <li>
+                    <a href={`https://github.com/${item.login}`}>
+                      <img src={`https://github.com/${item.login}.png`}/>
+                      <span>{item.login}</span>
                     </a>
                   </li>
                 )
@@ -107,7 +144,7 @@ export default function Home() {
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">Comunidades ({communities.length})</h2>
             <ul>
-              {communities.map(eachCommunity => {
+              {communities.slice(0,6).map(eachCommunity => {
                 return(
                   <li key={eachCommunity.id}>
                     <a>

@@ -9,7 +9,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    background-color: #D9E6F6;
+    background: linear-gradient(#D642D8, #3043C1);
     font-family: sans-serif;
   }
 

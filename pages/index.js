@@ -26,8 +26,11 @@ function ProfileSideBar() {
 export default function Home() {
 
   const [following, setFollowing] = React.useState([])
-
+  const [followers, setFollowers] = React.useState([])
+  const [communities, setCommunities] = React.useState([])
+  
   React.useEffect(function() {
+    //Busca quem segue
     fetch("https://api.github.com/users/juamerico/following")
     .then(function(data) {
       return data.json()
@@ -35,11 +38,8 @@ export default function Home() {
     .then(function(completeData) {
       setFollowing(completeData)
     })
-  })
-
-  const [followers, setFollowers] = React.useState([]);
-
-  React.useEffect(function() {
+  
+    //Busca seguidores
     fetch("https://api.github.com/users/juamerico/followers")
     .then(function(data) {
       return data.json()
@@ -47,15 +47,32 @@ export default function Home() {
     .then(function(completeData) {
       setFollowers(completeData)
     })
+
+    //Busca comunidades
+    fetch("https://graphql.datocms.com/", {
+      method: "POST",
+      headers: {
+        "Authorization": "1f4811d07527be614990db0206587c",
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify({"query": `query {
+        allCommunities {
+          title
+          id
+          creatorSlug
+          imageUrl
+        }
+      }`})
+    })
+    .then(response => response.json())
+    .then(completeResponse => {
+      //o retorno transformado em json, "data" é padrão, e o nome da query retornada do gql
+      const datoCommunities = completeResponse.data.allCommunities
+      console.log(datoCommunities)
+      setCommunities(datoCommunities)
+    })
   }, [])
-
-
-  const [communities, setCommunities] = React.useState([{
-    id: "1",
-    title: "Odeio acordar cedo",
-    image: "https://img10.orkut.br.com/community/52cc4290facd7fa700b897d8a1dc80aa.jpg"
-  }])
-
 
   return (
     <>
@@ -78,13 +95,26 @@ export default function Home() {
             const formData = new FormData(e.target);
 
             const community = {
-              id: new Date().toISOString,
               title: formData.get("title"),
-              image: formData.get("image")
+              imageUrl: formData.get("image"),
+              creatorSlug: user
             }
 
-            const updatedCommunities = [...communities, community];
-            setCommunities(updatedCommunities);
+            fetch("/api/datoCommunities", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(community)
+            })
+            .then(async response => {
+              const data = await response.json()
+              console.log(`comunidade do dato: ${data.createdRecord}`)
+              const community = data.createdRecord
+              const updatedCommunities = [...communities, community]
+              setCommunities(updatedCommunities)
+            })
+
           }}>
             <div>
               <input
@@ -109,7 +139,7 @@ export default function Home() {
         </div>
 
         <div className="profileRelationsArea" style={{gridArea: "relationsArea"}}>
-          {<ProfileRelationsBoxWrapper>
+          <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">Seguindo ({following.length})</h2>
             <ul>
              {following.slice(0,6).map(item => {
@@ -123,7 +153,7 @@ export default function Home() {
                 )
               })}
             </ul>
-          </ProfileRelationsBoxWrapper>}
+          </ProfileRelationsBoxWrapper>
 
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">Seguidores ({followers.length})</h2>
@@ -144,12 +174,12 @@ export default function Home() {
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">Comunidades ({communities.length})</h2>
             <ul>
-              {communities.slice(0,6).map(eachCommunity => {
+              {communities.slice(0,6).map(item => {
                 return(
-                  <li key={eachCommunity.id}>
-                    <a>
-                      <img src={eachCommunity.image}/>
-                      <span>{eachCommunity.title}</span>
+                  <li key={item.id}>
+                    <a href={item.imageUrl}>
+                      <img src={item.imageUrl}/>
+                      <span>{item.title}</span>
                     </a>
                   </li>
                 )

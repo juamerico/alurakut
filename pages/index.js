@@ -14,6 +14,8 @@ export default function Home(props) {
   const [following, setFollowing] = React.useState([])
   const [followers, setFollowers] = React.useState([])
   const [communities, setCommunities] = React.useState([])
+  const [scraps, setScraps] = React.useState([])
+  const [testimonials, setTestimonials] = React.useState([])
   
   React.useEffect(function() {
     //Busca quem segue
@@ -48,6 +50,16 @@ export default function Home(props) {
           id
           creatorSlug
           imageUrl
+        },
+        allScraps {
+          id
+          message
+          author
+        },
+        allTestimonials {
+          id
+          author
+          text
         }
       }`})
     })
@@ -55,8 +67,12 @@ export default function Home(props) {
     .then(completeResponse => {
       //o retorno transformado em json, "data" é padrão, e o nome da query retornada do gql
       const datoCommunities = completeResponse.data.allCommunities
-      console.log(datoCommunities)
+      const datoScraps = completeResponse.data.allScraps
+      const datoTestimonials = completeResponse.data.allTestimonials
+
       setCommunities(datoCommunities)
+      setScraps(datoScraps)
+      setTestimonials(datoTestimonials)
     })
   }, [])
 
@@ -84,14 +100,54 @@ export default function Home(props) {
 
         <div className="welcomeArea" style={{gridArea: "welcomeArea"}}>
           <Box>
-            <h1 className="title">Bem-Vindo</h1>
+            <h1 className="title">Bem-Vindo(a)</h1>
             <OrkutNostalgicIconSet/>
           </Box>
+
           <Box>
-          <h2 className="subTitle">O que você deseja fazer?</h2>
+            <h2 className="subTitle">Deixar um recado</h2>
+            <form onSubmit={function handleCreateScrap(e) {
+              e.preventDefault()
+              const formData = new FormData(e.target)
+
+              const scrap = {
+                message: formData.get("scrap"),
+                author: user
+              }
+
+              fetch("/api/scrap", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(scrap)
+              })
+              .then(async (response) => {
+                const data = await response.json()
+                const scrap = data.createdRecord
+                const updatedScraps = [...scraps, scrap]
+                setScraps(updatedScraps)
+              })
+            }}>
+              <div>
+                <textarea
+                  placeholder="Escreva seu recado"
+                  name="scrap"
+                  aria-label="Recado"
+                  type="text"
+                />
+              </div>
+              <button>
+                Enviar recado
+              </button>
+            </form>
+          </Box>
+
+          <Box>
+          <h2 className="subTitle">Criar comunidade</h2>
           <form onSubmit={function handleCreateCommunity(e) {
-            e.preventDefault();
-            const formData = new FormData(e.target);
+            e.preventDefault()
+            const formData = new FormData(e.target)
 
             const community = {
               title: formData.get("title"),
@@ -99,21 +155,19 @@ export default function Home(props) {
               creatorSlug: user
             }
 
-            fetch("/api/datoCommunities", {
+            fetch("/api/community", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json"
               },
               body: JSON.stringify(community)
             })
-            .then(async response => {
+            .then(async (response) => {
               const data = await response.json()
-              console.log(`comunidade do dato: ${data.createdRecord}`)
               const community = data.createdRecord
               const updatedCommunities = [...communities, community]
               setCommunities(updatedCommunities)
             })
-
           }}>
             <div>
               <input
@@ -135,6 +189,45 @@ export default function Home(props) {
             </button>
           </form>
         </Box>
+
+        <Box>
+            <h2 className="subTitle">Deixar um depoimento</h2>
+            <form onSubmit={function handleCreateTestimonial(e) {
+              e.preventDefault()
+              const formData = new FormData(e.target)
+
+              const testimonial = {
+                text: formData.get("testimonial"),
+                author: user
+              }
+
+              fetch("/api/testimonial", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify(testimonial)
+              })
+              .then(async (response) => {
+                const data = await response.json()
+                const testimonial = data.createdRecord
+                const updatedTestimonial = [...testimonials, testimonial]
+                setTestimonials(updatedTestimonial)
+              })
+            }}>
+              <div>
+                <textarea
+                  placeholder="Escreva seu depoimento"
+                  name="testimonial"
+                  aria-label="Depoimento"
+                  type="text"
+                />
+              </div>
+              <button>
+                Enviar depoimento
+              </button>
+            </form>
+          </Box>
         </div>
 
         <div className="profileRelationsArea" style={{gridArea: "relationsArea"}}>
@@ -143,9 +236,9 @@ export default function Home(props) {
             <ul>
              {following.slice(0,6).map(item => {
                 return(
-                  <li>
+                  <li key={item.id}>
                     <a href={`https://github.com/${item.login}`}>
-                      <img src={`https://github.com/${item.login}.png`}/>
+                      <img src={item.avatar_url}/>
                       <span>{item.login}</span>
                     </a>
                   </li>
@@ -159,9 +252,9 @@ export default function Home(props) {
             <ul>
               {followers.slice(0,6).map(item => {
                 return (
-                  <li>
+                  <li key={item.id}>
                     <a href={`https://github.com/${item.login}`}>
-                      <img src={`https://github.com/${item.login}.png`}/>
+                      <img src={item.avatar_url}/>
                       <span>{item.login}</span>
                     </a>
                   </li>
@@ -196,14 +289,8 @@ export async function getServerSideProps(context) {
   const token = cookies.USER_TOKEN
   const {githubUser} = jwt.decode(token)
 
-  const {isAuthenticated} = await fetch("https://alurakut.vercel.app/api/auth", {
-    headers: {
-      Authorization: token
-    }
-  })
-  .then(response => response.json())
-
-  if(!isAuthenticated) {
+  
+  if(!githubUser) {
     return {
       redirect: {
         destination: "/login",

@@ -35,7 +35,7 @@ const Box = styled.div`
     border-color: transparent;
     border-bottom-color: #ECF2FA;
   }
-  input {
+  input, textarea {
     width: 100%;
     background-color: #F4F4F4;
     color: #333333;

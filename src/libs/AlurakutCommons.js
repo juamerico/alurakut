@@ -35,7 +35,7 @@ export function AlurakutMenu({ githubUser }) {
         </nav>
 
         <nav>
-          <a href={`/logout`}>
+          <a href={`/login`}>
             Sair
           </a>
           <div>
@@ -416,7 +416,7 @@ const AlurakutLoginScreen = css`
           text-decoration: none;
           color: var(--colorPrimary);
         }
-        input {
+        input, textarea {
           width: 100%;
           display: block;
           border: 1px solid var(--textQuarternaryColor);
@@ -485,9 +485,10 @@ export const AlurakutStyles = css`
       opacity: .5;
     }
   }
-  input {
+  input, textarea {
     transition: .3s;
     outline: 0;
+    resize: none;
     &:disabled {
       cursor: not-allowed;
       opacity: .5;
@@ -495,6 +496,9 @@ export const AlurakutStyles = css`
     &:hover,
     &:focus {
       box-shadow: 0px 0px 5px #33333357;
+    }
+    &::placeholder {
+      font-family: sans-serif;
     }
   }
   ${AlurakutLoginScreen}

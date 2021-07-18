@@ -298,6 +298,8 @@ export default function Home(props) {
 
 export async function getServerSideProps(context) {
   const cookies = nookies.get(context)
+  const token = cookies.USER_TOKEN
+  const {githubUser} = jwt.decode(token)
   
   if(!cookies.USER_TOKEN) {
     return {

@@ -128,9 +128,12 @@ export default function Home(props) {
                 const updatedScraps = [...scraps, scrap]
                 setScraps(updatedScraps)
               })
+
+              document.querySelector(`[data-input="scrap"]`).value = ""
             }}>
               <div>
                 <textarea
+                  data-input="scrap"
                   placeholder="Escreva seu recado"
                   name="scrap"
                   aria-label="Recado"
@@ -168,9 +171,13 @@ export default function Home(props) {
               const updatedCommunities = [...communities, community]
               setCommunities(updatedCommunities)
             })
+
+            document.querySelector(`[data-input="communityTitle"]`).value = ""
+            document.querySelector(`[data-input="communityImg"]`).value = ""
           }}>
             <div>
               <input
+                data-input="communityTitle"
                 placeholder="Nome da comunidade"
                 name="title"
                 aria-label="Nome da comunidade"
@@ -179,6 +186,7 @@ export default function Home(props) {
             </div>
             <div>
               <input
+                data-input="communityImg"
                 placeholder="Imagem da comunidade"
                 name="image"
                 aria-label="Nome da comunidade"
@@ -214,9 +222,13 @@ export default function Home(props) {
                 const updatedTestimonial = [...testimonials, testimonial]
                 setTestimonials(updatedTestimonial)
               })
+
+            document.querySelector(`[data-input="testimonial"]`).value = ""
+
             }}>
               <div>
                 <textarea
+                  data-input="testimonial"
                   placeholder="Escreva seu depoimento"
                   name="testimonial"
                   aria-label="Depoimento"
@@ -286,16 +298,13 @@ export default function Home(props) {
 
 export async function getServerSideProps(context) {
   const cookies = nookies.get(context)
-  const token = cookies.USER_TOKEN
-  const {githubUser} = jwt.decode(token)
-
   
-  if(!githubUser) {
+  if(!cookies.USER_TOKEN) {
     return {
       redirect: {
         destination: "/login",
         permanent: false
-      }
+      } 
     }  
   }
 

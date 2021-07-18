@@ -3,27 +3,13 @@ import MainGrid from "../src/components/MainGrid"
 import Box from "../src/components/Box"
 import {AlurakutMenu, OrkutNostalgicIconSet, AlurakutProfileSidebarMenuDefault} from "../src/libs/AlurakutCommons.js"
 import {ProfileRelationsBoxWrapper} from '../src/components/ProfileRelations'
+import nookies from "nookies"
+import jwt from "jsonwebtoken"
 
 
-const user = "juamerico"
-function ProfileSideBar() {
-  return <Box>
-    <img src={`http://github.com/${user}.png`}/>
-  
-    <hr/>
+export default function Home(props) {
 
-      <p>
-        <a className="boxLink">
-          {user}
-        </a>
-      </p>
-      <hr/>
-
-      <AlurakutProfileSidebarMenuDefault />
-  </Box>  
-}
-
-export default function Home() {
+  const user = props.githubUser
 
   const [following, setFollowing] = React.useState([])
   const [followers, setFollowers] = React.useState([])
@@ -31,7 +17,7 @@ export default function Home() {
   
   React.useEffect(function() {
     //Busca quem segue
-    fetch("https://api.github.com/users/juamerico/following")
+    fetch(`https://api.github.com/users/${user}/following`)
     .then(function(data) {
       return data.json()
     })
@@ -40,7 +26,7 @@ export default function Home() {
     })
   
     //Busca seguidores
-    fetch("https://api.github.com/users/juamerico/followers")
+    fetch(`https://api.github.com/users/${user}/followers`)
     .then(function(data) {
       return data.json()
     })
@@ -80,7 +66,20 @@ export default function Home() {
 
       <MainGrid>
         <div className="profileArea" style={{gridArea: "profileArea"}}>
-          <ProfileSideBar/>
+          <Box>
+            <img src={`http://github.com/${user}.png`}/>
+          
+            <hr/>
+
+              <p>
+                <a className="boxLink">
+                  {user}
+                </a>
+              </p>
+              <hr/>
+
+              <AlurakutProfileSidebarMenuDefault />
+          </Box>  
         </div>
 
         <div className="welcomeArea" style={{gridArea: "welcomeArea"}}>
@@ -190,4 +189,32 @@ export default function Home() {
       </MainGrid>
     </>
   )
+}
+
+export async function getServerSideProps(context) {
+  const cookies = nookies.get(context)
+  const token = cookies.USER_TOKEN
+  const {githubUser} = jwt.decode(token)
+
+  const {isAuthenticated} = await fetch("https://alurakut.vercel.app/api/auth", {
+    headers: {
+      Authorization: token
+    }
+  })
+  .then(response => response.json())
+
+  if(!isAuthenticated) {
+    return {
+      redirect: {
+        destination: "/login",
+        permanent: false
+      }
+    }  
+  }
+
+  return {
+    props: {
+      githubUser
+    }
+  }
 }

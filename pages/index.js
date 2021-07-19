@@ -6,7 +6,6 @@ import {ProfileRelationsBoxWrapper} from '../src/components/ProfileRelations'
 import nookies from "nookies"
 import jwt from "jsonwebtoken"
 
-
 export default function Home(props) {
 
   const user = props.githubUser
@@ -36,7 +35,7 @@ export default function Home(props) {
       setFollowers(completeData)
     })
 
-    //Busca comunidades
+    //Busca comunidades, scraps e depoimentos
     fetch("https://graphql.datocms.com/", {
       method: "POST",
       headers: {
@@ -296,6 +295,7 @@ export default function Home(props) {
   )
 }
 
+//autenticação
 export async function getServerSideProps(context) {
   const cookies = nookies.get(context)
   const token = cookies.USER_TOKEN
@@ -306,8 +306,8 @@ export async function getServerSideProps(context) {
       redirect: {
         destination: "/login",
         permanent: false
-      } 
-    }  
+      }
+    }
   }
 
   return {

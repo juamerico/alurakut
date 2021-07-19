@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 
-const LargeBox = styled.div`
+const CommunityBox = styled.div`
     background: #FFFFFF;
     border-radius: 8px;
     padding: 16px;

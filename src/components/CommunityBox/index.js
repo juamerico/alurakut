@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from "styled-components"
 
 const CommunityBox = styled.div`
     background: #FFFFFF;
@@ -65,6 +65,6 @@ const CommunityBox = styled.div`
         margin-bottom: 20px;
     }
   }
-`;
+`
 
 export default CommunityBox
